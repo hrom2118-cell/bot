@@ -1,5 +1,5 @@
 # Используем официальный образ Python
-FROM python:3.10-slim
+FROM ubuntu:24.04
 
 # Установка системных зависимостей и Supervisor.
 # Все команды apt-get объединены в один RUN для максимальной стабильности, 
@@ -30,4 +30,5 @@ EXPOSE 8080
 
 # Запуск Supervisor
 CMD ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]
+
 
