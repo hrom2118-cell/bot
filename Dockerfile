@@ -1,8 +1,12 @@
 # Используем официальный образ Python
 FROM python:3.10-slim
 
-# Установка Supervisor
-RUN apt-get update && apt-get install -y supervisor \
+# Установка системных зависимостей и Supervisor
+# ДОБАВЛЕНЫ: build-essential и python3-dev для успешной сборки numpy, pandas и других пакетов
+RUN apt-get update && apt-get install -y \
+    supervisor \
+    build-essential \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Установка рабочей директории
