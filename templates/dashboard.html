@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Торговые Боты - Панель Управления</title>
+    <meta http-equiv="refresh" content="5"> <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f9; }
+        .container { max-width: 1000px; margin: auto; }
+        .bot-card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; }
+        .status-indicator { 
+            display: inline-block; 
+            width: 15px; 
+            height: 15px; 
+            border-radius: 50%; 
+            margin-right: 10px; 
+        }
+        .status-running { background-color: #28a745; }
+        .status-stopped { background-color: #dc3545; }
+        .status-inposition { background-color: #ffc107; }
+        .actions button { 
+            padding: 10px 15px; 
+            margin-right: 10px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        .start-btn { background-color: #28a745; color: white; }
+        .stop-btn { background-color: #dc3545; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+        .summary { margin-top: 15px; padding: 10px; background-color: #e9ecef; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Панель Управления Торговыми Ботами</h1>
+        {% for bot in bots %}
+        <div class="bot-card">
+            <h2>
+                {{ bot.id.upper().replace('_BOT', '') }}
+                <span class="status-indicator {{ 'status-running' if bot.running else 'status-stopped' }}"></span>
+                {{ 'RUNNING' if bot.running else 'STOPPED' }}
+                {% if bot.running and bot.in_position %}<span class="status-indicator status-inposition"></span>IN POSITION{% endif %}
+            </h2>
+
+            <div class="actions">
+                <form method="POST" action="{{ url_for('command') }}" style="display: inline;">
+                    <input type="hidden" name="bot_id" value="{{ bot.id }}">
+                    <input type="hidden" name="action" value="START">
+                    <button type="submit" class="start-btn" {% if bot.running %}disabled{% endif %}>СТАРТ</button>
+                </form>
+                <form method="POST" action="{{ url_for('command') }}" style="display: inline;">
+                    <input type="hidden" name="bot_id" value="{{ bot.id }}">
+                    <input type="hidden" name="action" value="STOP">
+                    <button type="submit" class="stop-btn" {% if not bot.running %}disabled{% endif %}>СТОП</button>
+                </form>
+            </div>
+
+            <table>
+                <tr>
+                    <th>Статус</th>
+                    <td>{{ bot.status_text }}</td>
+                    <th>Баланс</th>
+                    <td>{{ bot.stats.balance if bot.stats else 'N/A' }} USDT</td>
+                </tr>
+                <tr>
+                    <th>Время работы</th>
+                    <td>{{ bot.runtime }}</td>
+                    <th>Счет (Equity)</th>
+                    <td>{{ bot.stats.equity if bot.stats else 'N/A' }} USDT</td>
+                </tr>
+                <tr>
+                    <th>Общее PnL (USDT)</th>
+                    <td>{{ bot.stats.session_pnl if bot.stats else 'N/A' }}</td>
+                    <th>Кол-во сделок</th>
+                    <td>{{ bot.stats.trades_count if bot.stats else 'N/A' }}</td>
+                </tr>
+                {% if bot.running and bot.in_position %}
+                <tr>
+                    <th>Позиция</th>
+                    <td>{{ 'LONG' if bot.stats.is_long == 'True' else 'SHORT' }} @ {{ bot.stats.entry_price if bot.stats else 'N/A' }}</td>
+                    <th>Нереализ. PnL</th>
+                    <td>{{ bot.stats.pnl_unrealized }} ({{ bot.stats.pnl_percent_unrealized }}%)</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>Цена (Текущая)</th>
+                    <td>{{ bot.stats.current_price if bot.stats else 'N/A' }}</td>
+                    <th>Обновлено</th>
+                    <td>{{ bot.last_update }}</td>
+                </tr>
+            </table>
+            {% if bot.summary %}
+            <div class="summary">
+                ИТОГ СЕССИИ: {{ bot.summary }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

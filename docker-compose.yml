@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  # 1. Сервис для торговых ботов и веб-панели
+  trader_dashboard:
+    build: .
+    container_name: trader_dashboard
+    ports:
+      - "8080:8080" # Панель будет доступна на http://<IP-вашего-Portainer>:8080
+    volumes:
+      - .:/app # Для удобства отладки можно примонтировать текущую папку
+    depends_on:
+      - redis
+    restart: unless-stopped
+    # Установка локального времени для контейнера
+    environment:
+      - TZ=Europe/Moscow # Измените на свой часовой пояс при необходимости
+
+  # 2. Сервис для Redis (хранилище данных и команд)
+  redis:
+    image: redis:6-alpine
+    container_name: trading_redis
+    ports:
+      - "6379:6379" # Опционально, для отладки
+    restart: unless-stopped
