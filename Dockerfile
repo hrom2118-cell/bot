@@ -18,11 +18,13 @@ COPY app.py ./
 COPY supervisord.conf ./
 COPY templates/ templates/
 
-# Проверка доступа к PyPI
-RUN pip install --no-cache-dir --index-url https://pypi.org/simple/ --trusted-host pypi.org pip
+# Проверка доступа к PyPI (опционально)
+RUN apt-get update && apt-get install -y curl && \
+    curl -I https://pypi.org/simple/flask/ && \
+    rm -rf /var/lib/apt/lists/*
 
-# Установка зависимостей
-RUN pip install --no-cache-dir -r requirements.txt
+# Установка зависимостей с таймаутом и повторами
+RUN pip install --no-cache-dir --timeout 300 --retries 3 -r requirements.txt
 
 # Открытие порта для веб-панели (gunicorn)
 EXPOSE 8080
