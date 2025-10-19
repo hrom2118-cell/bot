@@ -2,14 +2,14 @@
 FROM python:3.10-slim
 
 # Установка системных зависимостей и Supervisor
-# ИСПРАВЛЕНО: Добавлены build-essential, python3-dev и libatlas-base-dev 
-# для корректной компиляции численных библиотек (pandas/numpy).
-RUN apt-get update && apt-get install -y \
+# Разбиваем на два RUN для повышения надежности.
+RUN apt-get update
+
+RUN apt-get install -y --no-install-recommends \
     supervisor \
     build-essential \
     python3-dev \
     libatlas-base-dev \
-    # Очистка кэша apt-get для уменьшения размера образа
     && rm -rf /var/lib/apt/lists/*
 
 # Установка рабочей директории
