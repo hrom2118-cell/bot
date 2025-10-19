@@ -1,38 +1,27 @@
-version: '3.7'
+version: '3.8'
 
 services:
-  # 1. Сервис для торговых ботов и веб-панели (trader_dashboard)
   trader_dashboard:
-    # Использует Dockerfile из текущей папки
-    build: . 
+    build: .
     container_name: trader_dashboard
     ports:
-      # Веб-панель будет доступна на http://<IP-вашего-сервера>:8080
-      - "8080:8080" 
+      - "8080:8080"
     volumes:
-      # Монтирование текущей папки в контейнер для разработки/отладки
-      - .:/app 
+      - .:/app
     depends_on:
-      # Указывает, что trader_dashboard зависит от redis
-      - redis 
+      redis:
+        condition: service_started
     restart: unless-stopped
-    # Установка локального времени для контейнера
     environment:
-      - TZ=Europe/Moscow # Измените на свой часовой пояс при необходимости
-    # Добавление пользовательских DNS-серверов
+      - TZ=Europe/Moscow
     dns:
       - 8.8.8.8
       - 1.1.1.1
 
-  # 2. Сервис для Redis (хранилище данных и команд)
   redis:
     image: redis:6-alpine
     container_name: trading_redis
-    ports:
-      # Открытие порта Redis. Опционально, но полезно для отладки.
-      - "6379:6379" 
     restart: unless-stopped
-    # Добавление пользовательских DNS-серверов
     dns:
       - 8.8.8.8
       - 1.1.1.1
