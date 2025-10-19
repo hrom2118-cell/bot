@@ -1,11 +1,11 @@
 # Используем официальный образ Python
 FROM python:3.10-slim
 
-# Установка системных зависимостей и Supervisor
-# Разбиваем на два RUN для повышения надежности.
-RUN apt-get update
-
-RUN apt-get install -y --no-install-recommends \
+# Установка системных зависимостей и Supervisor.
+# Все команды apt-get объединены в один RUN для максимальной стабильности, 
+# включая build-essential, python3-dev и libatlas-base-dev для численных библиотек.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     supervisor \
     build-essential \
     python3-dev \
