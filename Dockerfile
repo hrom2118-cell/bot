@@ -1,13 +1,11 @@
-FROM ubuntu:22.04
+FROM python:3.11-slim
 
 # Установка системных зависимостей
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         supervisor \
         build-essential \
-        python3-dev \
-        libatlas-base-dev \
-        python3-pip && \ 
+        libatlas-base-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Установка рабочей директории
@@ -20,8 +18,11 @@ COPY app.py ./
 COPY supervisord.conf ./
 COPY templates/ templates/
 
+# Проверка доступа к PyPI
+RUN pip install --no-cache-dir --index-url https://pypi.org/simple/ --trusted-host pypi.org pip
+
 # Установка зависимостей
-RUN pip install --no-cache-dir -r requirements.txt 
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Открытие порта для веб-панели (gunicorn)
 EXPOSE 8080
