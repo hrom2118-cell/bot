@@ -1,15 +1,13 @@
-# Используем официальный образ Python
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 
-# Установка системных зависимостей и Supervisor.
-# Все команды apt-get объединены в один RUN для максимальной стабильности, 
-# включая build-essential, python3-dev и libatlas-base-dev для численных библиотек.
+# Установка системных зависимостей
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         supervisor \
         build-essential \
         python3-dev \
-        libatlas-base-dev && \
+        libatlas-base-dev \
+        python3-pip && \ 
     rm -rf /var/lib/apt/lists/*
 
 # Установка рабочей директории
@@ -23,12 +21,10 @@ COPY supervisord.conf ./
 COPY templates/ templates/
 
 # Установка зависимостей
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt 
 
 # Открытие порта для веб-панели (gunicorn)
 EXPOSE 8080
 
 # Запуск Supervisor
 CMD ["/usr/bin/supervisord", "-c", "/app/supervisord.conf"]
-
-
